@@ -9,6 +9,7 @@ class PersonalInfo(BaseModel):
     last_name: str
     email: EmailStr
     phone: str | None = None
+    national_id: str | None = None
 
 class EmploymentInfo(BaseModel):
     department: str
