@@ -4,12 +4,13 @@ from app.database import get_db
 from app.models.schemas import ATSWebhookEnvelope
 from app.models.db_models import WebhookEvent, Employee
 from app.services.transform import transform_to_employee
+from app.core.security import require_valid_signature
 
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
 
 
 @router.post("/ats")
-def receive_ats_webhook(envelope: ATSWebhookEnvelope, db: Session = Depends(get_db)):
+def receive_ats_webhook(envelope: ATSWebhookEnvelope, db: Session = Depends(get_db), verified_raw_body: bytes = Depends(require_valid_signature),):
     existing_event = db.query(WebhookEvent).filter(
         WebhookEvent.event_id == envelope.event_id
     ).first()
