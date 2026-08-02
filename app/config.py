@@ -6,7 +6,8 @@ class Settings(BaseSettings):
     ENV: str = "local"
     DATABASE_URL: str
     JWT_SECRET_KEY: str
-
+    WEBHOOK_SIGNING_SECRET: str
+    
     class Config:
         env_file = ".env"
 
