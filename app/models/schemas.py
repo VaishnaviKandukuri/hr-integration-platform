@@ -36,3 +36,19 @@ class ATSWebhookEnvelope(BaseModel):
     event_type: Literal["employee.hired", "employee.rehired", "employee.updated"]
     triggered_at: dt.datetime
     data: ATSCandidateObject
+
+class EmployeeOut(BaseModel):
+    id: str
+    first_name: str
+    last_name: str
+    email_masked: str
+    phone_masked: str | None
+    department: str
+    job_title: str
+    base_salary: float | None
+    currency: str
+    employment_status: str
+    hire_date: dt.date
+
+    class Config:
+        from_attributes = True
