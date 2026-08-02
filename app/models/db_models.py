@@ -12,6 +12,7 @@ class Employee(Base):
     __tablename__ = "employees"
 
     id = Column(String, primary_key=True, default=generate_uuid)
+    employee_number = Column(String, unique=True, nullable=True)
 
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)

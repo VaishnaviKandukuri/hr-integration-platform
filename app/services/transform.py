@@ -18,6 +18,7 @@ def transform_to_employee(envelope: ATSWebhookEnvelope) -> Employee:
         base_salary=Decimal(str(candidate.compensation.base_salary)),
         currency=candidate.compensation.currency,
         hire_date=candidate.employment_info.hire_date,
+        employee_number=candidate.ats_candidate_id,
     )
 
     return employee

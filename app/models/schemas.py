@@ -17,7 +17,8 @@ class EmploymentInfo(BaseModel):
     employment_type: Literal["full_time", "part_time", "contract", "intern"]
     hire_date: dt.date
     is_rehire: bool = False
-
+    previous_employee_number: str | None = None
+    
 class CompensationBlock(BaseModel):
     base_salary: float
     currency: str = "INR"
