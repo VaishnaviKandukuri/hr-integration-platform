@@ -5,7 +5,11 @@ import datetime as dt
 from jose import jwt
 from fastapi import Request, Header, HTTPException
 from app.config import settings
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="oauth/token")
 
 def compute_signature(raw_body: bytes, timestamp: str, secret: str) -> str:
     message = timestamp.encode() + b"." + raw_body
@@ -66,3 +70,15 @@ def create_access_token(client_id: str) -> str:
 
     token = jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
     return token
+
+def get_current_client(token: str = Depends(oauth2_scheme)) -> str:
+    try:
+        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+    client_id = payload.get("sub")
+    if not client_id:
+        raise HTTPException(status_code=401, detail="Token missing subject claim")
+
+    return client_id
