@@ -1,6 +1,6 @@
 import uuid
 import datetime as dt
-from sqlalchemy import Column, String, DateTime, Boolean, Numeric
+from sqlalchemy import Column, String, DateTime, Boolean, Numeric, Integer, Text
 from app.database import Base
 
 
@@ -31,3 +31,14 @@ class Employee(Base):
 
     created_at = Column(DateTime, default=dt.datetime.utcnow)
     updated_at = Column(DateTime, default=dt.datetime.utcnow, onupdate=dt.datetime.utcnow)
+
+class WebhookEvent(Base):
+    __tablename__ = "webhook_events"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    event_id = Column(String, unique=True, index=True, nullable=False)
+    event_type = Column(String, nullable=False)
+    processing_status = Column(String, default="processed")
+    employee_id = Column(String, nullable=True)
+    raw_payload = Column(Text, nullable=True)
+    received_at = Column(DateTime, default=dt.datetime.utcnow)
