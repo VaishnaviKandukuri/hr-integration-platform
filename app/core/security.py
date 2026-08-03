@@ -59,11 +59,12 @@ def authenticate_client(client_id: str, client_secret: str) -> bool:
     )
 
 
-def create_access_token(client_id: str) -> str:
+def create_access_token(client_id: str, scopes: list[str]) -> str:
     expire = dt.datetime.utcnow() + dt.timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
     payload = {
         "sub": client_id,
+        "scopes": scopes,
         "exp": expire,
         "iat": dt.datetime.utcnow(),
     }
@@ -82,3 +83,22 @@ def get_current_client(token: str = Depends(oauth2_scheme)) -> str:
         raise HTTPException(status_code=401, detail="Token missing subject claim")
 
     return client_id
+
+class RequireScope:
+    def __init__(self, required_scope: str):
+        self.required_scope = required_scope
+
+    def __call__(self, token: str = Depends(oauth2_scheme)) -> str:
+        try:
+            payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+        except JWTError:
+            raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+        token_scopes = payload.get("scopes", [])
+        if self.required_scope not in token_scopes:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Token missing required scope: {self.required_scope}",
+            )
+
+        return payload.get("sub")
