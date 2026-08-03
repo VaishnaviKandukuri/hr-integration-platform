@@ -4,6 +4,7 @@ from app.database import get_db
 from app.models.schemas import ATSWebhookEnvelope
 from app.models.db_models import WebhookEvent, Employee
 from app.services.transform import transform_to_employee
+from app.services.audit import log_employee_change, _employee_to_dict
 from app.core.security import require_valid_signature
 
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
@@ -42,12 +43,15 @@ def receive_ats_webhook(envelope: ATSWebhookEnvelope, db: Session = Depends(get_
                 detail=f"Rehire event references previous_employee_number '{previous_number}', but no matching employee was found.",
             )
 
+        before_snapshot = _employee_to_dict(employee)
+
         employee.employment_status = "active"
         employee.hire_date = envelope.data.employment_info.hire_date
         employee.department = envelope.data.employment_info.department
         employee.job_title = envelope.data.employment_info.job_title
 
         result_status = "rehired"
+        log_employee_change(db, employee, action="rehire", actor="MockATS-webhook", before_snapshot=before_snapshot)
 
     else:
         employee = transform_to_employee(envelope)
@@ -55,6 +59,7 @@ def receive_ats_webhook(envelope: ATSWebhookEnvelope, db: Session = Depends(get_
         db.add(employee)
         db.flush()
         result_status = "accepted"
+        log_employee_change(db, employee, action="create", actor="MockATS-webhook")
 
     webhook_event = WebhookEvent(
         event_id=envelope.event_id,
