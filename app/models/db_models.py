@@ -43,3 +43,15 @@ class WebhookEvent(Base):
     employee_id = Column(String, nullable=True)
     raw_payload = Column(Text, nullable=True)
     received_at = Column(DateTime, default=dt.datetime.utcnow)
+
+class AuditLog(Base):
+    __tablename__ = "audit_log"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    entity_type = Column(String, nullable=False)
+    entity_id = Column(String, nullable=False, index=True)
+    action = Column(String, nullable=False)
+    actor = Column(String, nullable=False)
+    before_state = Column(Text, nullable=True)
+    after_state = Column(Text, nullable=True)
+    timestamp = Column(DateTime, default=dt.datetime.utcnow)
