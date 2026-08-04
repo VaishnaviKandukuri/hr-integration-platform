@@ -52,10 +52,11 @@ async def require_valid_signature(
 
     return raw_body
 
+
 def authenticate_client(client_id: str, client_secret: str) -> bool:
     return (
-        client_id == settings.REGISTERED_CLIENT_ID
-        and client_secret == settings.REGISTERED_CLIENT_SECRET
+        hmac.compare_digest(client_id, settings.REGISTERED_CLIENT_ID)
+        and hmac.compare_digest(client_secret, settings.REGISTERED_CLIENT_SECRET)
     )
 
 

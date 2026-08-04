@@ -6,6 +6,8 @@ from app.models.db_models import WebhookEvent, Employee
 from app.services.transform import transform_to_employee
 from app.services.audit import log_employee_change, _employee_to_dict
 from app.core.security import require_valid_signature
+import json
+from app.services.pii import mask_payload_for_storage
 
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
 
@@ -65,7 +67,7 @@ def receive_ats_webhook(envelope: ATSWebhookEnvelope, db: Session = Depends(get_
         event_id=envelope.event_id,
         event_type=envelope.event_type,
         employee_id=employee.id,
-        raw_payload=envelope.model_dump_json(),
+        raw_payload=json.dumps(mask_payload_for_storage(envelope.model_dump(mode="json"))),
     )
     db.add(webhook_event)
 

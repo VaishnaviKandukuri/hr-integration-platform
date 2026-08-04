@@ -8,8 +8,8 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    REGISTERED_CLIENT_ID: str = "payroll-system-001"
-    REGISTERED_CLIENT_SECRET: str = "payroll-secret-devonly-4471"
+    REGISTERED_CLIENT_ID: str
+    REGISTERED_CLIENT_SECRET: str
     REGISTERED_CLIENT_SCOPES: list[str] = ["payroll:read"]
     WEBHOOK_SIGNING_SECRET: str
 
