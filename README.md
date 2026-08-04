@@ -43,11 +43,3 @@ Visit `http://127.0.0.1:8000/docs` for interactive API docs. Note: `POST /webhoo
 pytest tests/ -v
 ```
 
-## Roadmap / not yet built
-
-- SSO/SAML (conceptually understood; not built — disproportionate scope for this project)
-- Full iPaaS integration (Workato) — evaluated, deprioritized in favor of building the integration logic directly
-- Alembic migrations (currently using `Base.metadata.create_all`, which cannot alter existing tables — a known, real limitation)
-- Batch/SFTP-style sync alongside the current real-time webhook pattern
-- Cloud event-driven pattern (e.g., one Lambda + SQS example)
-- CI pipeline (GitHub Actions) running tests on push
