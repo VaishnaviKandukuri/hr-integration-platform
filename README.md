@@ -21,6 +21,11 @@ Built as a focused portfolio project targeting HR-tech data + integrations roles
 - **Audit logging**: before/after snapshots on every create/rehire, with actor and timestamp
 - **JSON → XML export** for a legacy payroll-style consumer
 - **Automated tests** (pytest) covering hire, duplicate detection, rehire, and signature rejection
+- **CI/CD**: GitHub Actions runs the full pytest suite on every push to `main`, using GitHub Secrets for configuration (no hardcoded values, no `.env` committed)
+- **Security hardening**: constant-time credential comparison, no hardcoded client secrets, PII masking applied to both the primary employee record and the raw webhook audit trail
+- **Batch export pattern**: CSV batch export of active employees (`scripts/batch_export.py`), alongside the real-time webhook pattern — with a documented (not executed) SFTP upload implementation for a live legacy-payroll target
+
+
 
 ## Tech stack
 
