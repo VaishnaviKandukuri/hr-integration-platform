@@ -13,6 +13,7 @@ Built as a focused portfolio project targeting HR-tech data + integrations roles
 ## What's implemented
 
 - **Nested webhook payload schema** (Pydantic) modeled on real ATS webhook shapes
+- **Dynamic test data generation**: `scripts/send_test_webhook.py` uses Faker to generate realistic, varied employee data on every run, rather than a fixed hardcoded fixture
 - **HMAC-SHA256 signature verification** with replay-attack protection (timestamp tolerance window, constant-time comparison)
 - **OAuth2 Client Credentials flow** with JWT issuance and RBAC scopes
 - **Idempotency**: duplicate `event_id` detection via a dedicated ledger table, backed by a database-level unique constraint
@@ -26,10 +27,16 @@ Built as a focused portfolio project targeting HR-tech data + integrations roles
 - **Batch export pattern**: CSV batch export of active employees (`scripts/batch_export.py`), alongside the real-time webhook pattern — with a documented (not executed) SFTP upload implementation for a live legacy-payroll target
 
 
-
 ## Tech stack
 
-Python, FastAPI, SQLAlchemy, Pydantic, SQLite, python-jose (JWT), pytest, Docker
+**Core:** Python, FastAPI, SQLAlchemy, Pydantic, SQLite
+**Auth/Security:** python-jose (JWT), python-multipart, hmac/hashlib (stdlib)
+**Testing:** pytest, httpx (via FastAPI TestClient)
+**Data generation:** Faker
+**Integration patterns:** paramiko (SFTP, pattern demonstrated not executed), csv (stdlib, batch export), xml.etree.ElementTree (stdlib, legacy XML export)
+**CI/CD:** GitHub Actions
+**Containerization:** Docker (written, not locally run)
+
 
 ## Running locally
 
