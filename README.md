@@ -1,57 +1,135 @@
-# HR Integration & Data Governance Platform
+# HR Systems & Employee Data Management Project
 
-A FastAPI service simulating a real-world HR-tech integration: a mock ATS sends signed webhooks for hire/rehire events, which are authenticated, validated, transformed, PII-masked, and written into a canonical employee record — with full audit logging and a legacy-system XML export for payroll.
+An HR technology portfolio project demonstrating how employee information can be managed, validated, protected and transferred across HR systems.
 
-Built as a focused portfolio project targeting HR-tech data + integrations roles, prioritizing integration engineering (auth, idempotency, data governance) over ML/analytics.
+The project simulates an employee lifecycle workflow connecting recruitment, HR operations and payroll. It focuses on new-hire processing, rehires, employee record management, data accuracy, employee information security and payroll data exchange.
 
-## Architecture
+**Focus Areas:** HR Operations | HRIS | Employee Lifecycle Management | HR Data Governance | Payroll Coordination | HR Systems Integration
 
-**Write path:** Mock ATS → HMAC signature verification → duplicate/rehire business logic → PII masking + transform → single atomic transaction (Employee + WebhookEvent + AuditLog).
+## 1. Project Overview
 
-**Read path:** Client → OAuth2 Client Credentials token → RBAC scope check (`payroll:read`) → JSON (`GET /employees/{id}`) or legacy XML (`GET /payroll/employees/{id}/export.xml`).
+HR departments regularly work with multiple systems to manage employee information throughout the employee lifecycle. Data collected during recruitment must be accurately transferred into employee records and made available to relevant downstream functions such as payroll.
 
-## What's implemented
+This project explores how HR systems can support that process while maintaining data accuracy, confidentiality and accountability.
 
-- **Nested webhook payload schema** (Pydantic) modeled on real ATS webhook shapes
-- **Dynamic test data generation**: `scripts/send_test_webhook.py` uses Faker to generate realistic, varied employee data on every run, rather than a fixed hardcoded fixture
-- **HMAC-SHA256 signature verification** with replay-attack protection (timestamp tolerance window, constant-time comparison)
-- **OAuth2 Client Credentials flow** with JWT issuance and RBAC scopes
-- **Idempotency**: duplicate `event_id` detection via a dedicated ledger table, backed by a database-level unique constraint
-- **Rehire handling**: matches and reactivates existing employee records instead of creating duplicates, via `previous_employee_number`
-- **PII masking**: email/phone masked, national ID reduced to last 4 digits, applied before any database write
-- **Audit logging**: before/after snapshots on every create/rehire, with actor and timestamp
-- **JSON → XML export** for a legacy payroll-style consumer
-- **Automated tests** (pytest) covering hire, duplicate detection, rehire, and signature rejection
-- **CI/CD**: GitHub Actions runs the full pytest suite on every push to `main`, using GitHub Secrets for configuration (no hardcoded values, no `.env` committed)
-- **Security hardening**: constant-time credential comparison, no hardcoded client secrets, PII masking applied to both the primary employee record and the raw webhook audit trail
-- **Batch export pattern**: CSV batch export of active employees (`scripts/batch_export.py`), alongside the real-time webhook pattern — with a documented (not executed) SFTP upload implementation for a live legacy-payroll target
+The simulated workflow covers:
 
+- Transferring new-hire information from recruitment into an employee record.
+- Updating existing employee records when former employees rejoin.
+- Preventing duplicate employee entries and repeated transactions.
+- Protecting sensitive employee information.
+- Maintaining records of employee data changes.
+- Preparing employee information for payroll processing.
+- Supporting data exchange between modern HR systems and legacy platforms.
 
-## Tech stack
+## 2. HR Business Workflow
 
-**Core:** Python, FastAPI, SQLAlchemy, Pydantic, SQLite
-**Auth/Security:** python-jose (JWT), python-multipart, hmac/hashlib (stdlib)
-**Testing:** pytest, httpx (via FastAPI TestClient)
-**Data generation:** Faker
-**Integration patterns:** paramiko (SFTP, pattern demonstrated not executed), csv (stdlib, batch export), xml.etree.ElementTree (stdlib, legacy XML export)
-**CI/CD:** GitHub Actions
-**Containerization:** Docker (written, not locally run)
+<escape>Recruitment / ATS</escape>
+↓
+**New Hire Information**
+↓
+**Employee Data Validation**
+↓
+**HRIS / Employee Records**
+↓
+**Employee Data Governance & Audit Trail**
+↓
+**Payroll Data Export**
 
+The project simulates the movement of employee information from recruitment into HR operations and onward to payroll.
 
-## Running locally
+## 3. Key HR Functionalities
 
-```bash
-python -m venv venv
-venv\Scripts\Activate.ps1        # Windows
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
+### Employee Lifecycle Management
 
-Visit `http://127.0.0.1:8000/docs` for interactive API docs. Note: `POST /webhooks/ats` requires a valid HMAC signature and cannot be tested via the docs UI directly — use `python -m scripts.send_test_webhook`.
+- **New Hire Processing:** Simulates transferring candidate and new-hire information from an ATS into a centralized employee record.
+- **Rehire Management:** Identifies returning employees and reactivates their existing records rather than creating unnecessary duplicates.
+- **Employee Record Accuracy:** Validates incoming information before updating employee records.
+- **Duplicate Prevention:** Detects repeated transactions to help maintain consistent employee records.
 
-## Running tests
+### HR Data Management & Governance
 
-```bash
-pytest tests/ -v
-```
+- **Employee Data Protection:** Masks sensitive information such as email addresses, phone numbers and national identification details.
+- **Data Confidentiality:** Applies masking to employee records and webhook audit information.
+- **Employee Record History:** Maintains before-and-after snapshots when employee records are created or reactivated.
+- **Audit Trail:** Captures the responsible actor and timestamp for important employee data changes.
+- **Data Consistency:** Uses transactional processing to ensure related employee and audit records are handled together.
 
+### HRIS & Payroll Coordination
+
+- Simulates employee information exchange between recruitment and HR systems.
+- Provides structured employee records in JSON format.
+- Generates XML employee data for a legacy payroll-style system.
+- Supports CSV batch exports of active employee records.
+- Documents an SFTP-based file transfer approach for a legacy payroll environment.
+
+### HR Systems Access & Security
+
+- Simulates secure access for authorized HR and payroll system users.
+- Uses role-based permissions to restrict access to payroll-related employee information.
+- Validates incoming recruitment-system information before processing.
+- Includes protections against unauthorized or repeated webhook requests.
+
+## 4. Key Project Scenarios
+
+| HR Scenario | Project Demonstration |
+|---|---|
+| New employee joins | Creates a new employee record |
+| Former employee rejoins | Reactivates the existing employee record |
+| Duplicate information received | Prevents duplicate event processing |
+| Sensitive employee details received | Masks personal information |
+| Employee record changes | Maintains an audit history |
+| Payroll requires employee data | Generates structured employee exports |
+| HR systems exchange information | Simulates secure data transfer |
+
+## 5. Technology Used
+
+The project uses technology to demonstrate HR system workflows and data management concepts.
+
+| Area | Tools |
+|---|---|
+| HR system workflow simulation | Python, FastAPI |
+| Employee data validation | Pydantic |
+| Employee records | SQLite, SQLAlchemy |
+| Data exchange | REST APIs, JSON, XML, CSV |
+| Data security | OAuth2, JWT, HMAC-SHA256 |
+| Test employee data | Faker |
+| Process validation | pytest |
+| Automation | GitHub Actions |
+| File transfer pattern | SFTP |
+
+## 6. Testing & Validation
+
+The project includes automated tests for important employee lifecycle scenarios:
+
+- Successful new-hire processing.
+- Duplicate event detection.
+- Rehire and employee record reactivation.
+- Rejection of invalid webhook signatures.
+
+GitHub Actions runs the automated test suite whenever changes are pushed to the main branch.
+
+## 7. Project Scope
+
+This is an independent HR technology portfolio simulation using mock employee information. It is not a live implementation connected to a commercial ATS, Workday, SAP SuccessFactors or payroll provider.
+
+The SFTP transfer is documented as an integration pattern rather than an executed live transfer. Docker configuration is included but has not been locally executed.
+
+AI tools assisted with portions of the technical implementation and troubleshooting. The project was designed around HR business processes, employee lifecycle management, HR data governance and system interoperability.
+
+## 8. HR Value & Learning Outcomes
+
+This project explores how technology can support everyday HR activities and improve the reliability of employee information across connected systems.
+
+Key HR concepts demonstrated include:
+
+- Employee lifecycle data management.
+- HRIS and ATS integration concepts.
+- New-hire and rehire administration.
+- Employee data accuracy and consistency.
+- Personal information confidentiality.
+- HR audit trails and record accountability.
+- Payroll data coordination.
+- Secure HR information exchange.
+
+**Project Objective:** Explore how HR technology and connected systems can support accurate employee records, smoother HR operations and secure information exchange throughout the employee lifecycle.
